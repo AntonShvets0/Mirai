@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>Mirai</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NGettext" Version="0.6.6" />
+      <PackageReference Include="SFML.Net" Version="2.5.0" />
+    </ItemGroup>
+
+</Project>
