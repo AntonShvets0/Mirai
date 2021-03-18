@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Mirai.Abstracts;
 using Mirai.Animation;
+using Mirai.ByteSaver.Protocol;
 using Mirai.Exceptions;
 using Mirai.Models;
 using SFML.Graphics;
@@ -26,7 +27,9 @@ namespace Mirai
 
                 _currentScene.RenderWindow ??= _renderWindow;
                 _currentScene.GameObjects.Clear();
+                _currentScene.PreInit();
                 _currentScene.Init();
+                _currentScene.PostInit();
             } 
         }
 
@@ -37,6 +40,8 @@ namespace Mirai
         public Game(string startScene, VideoMode video, SceneAssembly sceneAssembly)
         {
             Cache.Load();
+            Packet.Assembly = sceneAssembly.Assembly;
+            
             _renderWindow = new RenderWindow(video, "Mirai Engine");
 
             LoadScenes(sceneAssembly);
@@ -207,7 +212,7 @@ namespace Mirai
                 
                 _renderWindow.SetMouseCursor(_currentScene.FocusedObject.FocusedCursor);
             }
-            else if (obj != null)
+            else if (obj != null && !(_currentScene.FocusedObject?.IsLocked ?? false))
             {
                 _currentScene.FocusedObject?.OnMouseLeft(sender, ev);
                 
@@ -215,7 +220,7 @@ namespace Mirai
                 _currentScene.FocusedObject.OnMouseEntered(sender, ev);
                 _renderWindow.SetMouseCursor(_currentScene.FocusedObject.FocusedCursor);
             }
-            else
+            else if (!(_currentScene.FocusedObject?.IsLocked ?? false))
             {
                 _currentScene?.FocusedObject?.OnMouseLeft(sender, ev);
 

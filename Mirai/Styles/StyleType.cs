@@ -8,6 +8,7 @@
         TextColor,
         Color,
         BorderColor,
-        BorderSize
+        BorderSize,
+        PointerColor
     }
 }

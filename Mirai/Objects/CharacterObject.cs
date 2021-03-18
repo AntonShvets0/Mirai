@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mirai.Abstracts;
 using Mirai.Enums;
-using Mirai.NovelPart;
+using Mirai.Novel.Models;
 using Mirai.Scenes;
 using SFML.Graphics;
 using SFML.System;
@@ -13,7 +13,7 @@ namespace Mirai.Objects
 {
     public class CharacterObject : GameObject
     {
-        public override bool IsFocusable { get; set; } = true;
+        public override bool IsFocusable { get; set; } = false;
         public override Cursor FocusedCursor { get; set; } = new Cursor(Cursor.CursorType.Arrow);
 
         public string Id;
@@ -60,7 +60,7 @@ namespace Mirai.Objects
                 (Game.Scene as TextScene).NovelInfo.Add(text);
             }
             
-            text.Actions.Add(() =>
+            text.UpdateActions.Add(() =>
             {
                 if (_sprite == null)
                 {
@@ -100,13 +100,14 @@ namespace Mirai.Objects
 
                 if (!Game.Scene.GameObjects.Contains(this))
                 {
-                    Game.Scene.GameObjects.Insert(Game.Scene.GameObjects.Count - 1, this);
+                    Game.Scene.GameObjects.Insert(1, this);
                 }
             
                 _isHide = false;
                 IsVisible = true; 
             });
         }
+        
 
         public void Hide(CharacterTypeShowing typeShowing = CharacterTypeShowing.Normal)
         {
@@ -116,23 +117,27 @@ namespace Mirai.Objects
                 text = new NovelAction();
                 (Game.Scene as TextScene).NovelInfo.Add(text);
             }
-            
-            text.Actions.Add(() =>
+
+            text.UpdateActions.Add(() =>
             {
                 if (typeShowing == CharacterTypeShowing.Fade) _isHide = true;
                 else IsVisible = false;
             });
         }
 
-        public void Say(params string[] str)
+        public NovelText Say(params string[] str)
         {
             var textScene = Game.Scene as TextScene;
-            
-            textScene.NovelInfo.Add(new NovelText
+
+            var action = new NovelText
             {
                 Text = str,
                 Character = this
-            });
+            };
+            
+            textScene.NovelInfo.Add(action);
+
+            return action;
         }
 
         public override IEnumerable<Drawable> Update(RenderWindow renderWindow)

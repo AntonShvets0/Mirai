@@ -9,9 +9,13 @@ namespace Mirai.Abstracts
 {
     public abstract class GameObject
     {
-        public abstract bool IsFocusable { get; set; }
-        public abstract Cursor FocusedCursor { get; set; }
+        public virtual bool IsFocusable { get; set; } = false;
+        public virtual Cursor FocusedCursor { get; set; } = new Cursor(Cursor.CursorType.Arrow);
+        public virtual bool IsLocked { get; set; } = false;
+        
+        
         public bool IsVisible = true;
+        public List<string> Tags = new List<string>();
         
         public float? X;
         public float? Y;

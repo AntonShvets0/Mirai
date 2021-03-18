@@ -1,7 +1,5 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirai2", "Mirai2\Mirai2.csproj", "{1CE0282B-4257-4C4B-A470-F355C4BD9F18}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualNovell", "VisualNovell\VisualNovell.csproj", "{66BAADA4-DE59-435F-A256-B453FBC3CF46}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirai", "Mirai\Mirai.csproj", "{32D129BC-04B3-49B7-BA08-3E9C6F9694CD}"
@@ -12,10 +10,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1CE0282B-4257-4C4B-A470-F355C4BD9F18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1CE0282B-4257-4C4B-A470-F355C4BD9F18}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1CE0282B-4257-4C4B-A470-F355C4BD9F18}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1CE0282B-4257-4C4B-A470-F355C4BD9F18}.Release|Any CPU.Build.0 = Release|Any CPU
 		{66BAADA4-DE59-435F-A256-B453FBC3CF46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{66BAADA4-DE59-435F-A256-B453FBC3CF46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66BAADA4-DE59-435F-A256-B453FBC3CF46}.Release|Any CPU.ActiveCfg = Release|Any CPU

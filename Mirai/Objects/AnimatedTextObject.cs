@@ -11,6 +11,7 @@ namespace Mirai.Objects
     {
         public override Cursor FocusedCursor { get; set; }
         public override bool IsFocusable { get; set; } = false;
+        public CharacterObject CharacterObject;
 
         public string Text;
         public Text TextTyped;

@@ -16,10 +16,12 @@ namespace Mirai.ByteSaver
     public class Serializer
     {
         private object _data;
+        private bool _root;
         
-        public Serializer(object classInstance)
+        public Serializer(object classInstance, bool root = true)
         {
             _data = classInstance;
+            _root = root;
 
             if (classInstance.GetType().GetCustomAttribute<ByteSerializableAttribute>() == null)
             {
@@ -31,12 +33,19 @@ namespace Mirai.ByteSaver
 
         private byte[] ObjectToByteArray(object obj)
         {
-            if (obj == null)
-                return Array.Empty<byte>();
+            var bytes = new List<byte>();
+            if (obj == null) return Array.Empty<byte>();
+            var typeName = Packet.SerializeName(obj.GetType());
+            
+            bytes.Add((byte)typeName.Length);
+            bytes.AddRange(Encoding.ASCII.GetBytes(typeName));
 
             if (obj is string stringObj)
             { 
-                return Encoding.UTF8.GetBytes(stringObj);
+                bytes.Add(0);
+                bytes.AddRange(Encoding.UTF8.GetBytes(stringObj));
+
+                return bytes.ToArray();
             }
 
             if (obj.GetType().IsArray)
@@ -46,17 +55,17 @@ namespace Mirai.ByteSaver
 
                 foreach (var o in arr)
                 {
-                    fields.Add(Packet.HandleBytes(ObjectToByteArray(o)));
+                    fields.Add(Packet.HandleBytes(ObjectToByteArray(o), false, null));
                 }
                 
-                return new Packet(fields.ToArray()).ToBytes();
+                return new Packet(fields.ToArray()).ToBytes(arr.GetType().GetElementType());
             }
             
             if (!obj.GetType().IsValueType)
             {
                 if (obj.GetType().GetCustomAttribute<ByteSerializableAttribute>() != null)
                 {
-                    return new Serializer(obj).ToBytes();
+                    return new Serializer(obj, false).ToBytes();
                 }
                 
                 throw new PacketException("Only value types are available.");
@@ -74,7 +83,10 @@ namespace Mirai.ByteSaver
 
             handle.Free();
             
-            return rawData;
+            bytes.Add(0);
+            bytes.AddRange(rawData);
+
+            return bytes.ToArray();
         }
 
         public byte[] ToBytes()
@@ -83,12 +95,19 @@ namespace Mirai.ByteSaver
 
             foreach (var prop in GetProperties())
             {
+                if (prop.GetCustomAttribute<NonSerializedAttribute>() != null) continue;
                 var value = prop.GetValue(_data);
+                if (value == null)
+                {
+                    fields.Add(new PacketField());
+                    continue;
+                }
+                
                 var v = ObjectToByteArray(value);
-                fields.Add(Packet.HandleBytes(v));
+                fields.Add(Packet.HandleBytes(v, false, null));
             }
-            
-            return new Packet(fields.ToArray()).ToBytes();
+
+            return new Packet(fields.ToArray()).ToBytes(_data.GetType(), _root);
         }
     }
 

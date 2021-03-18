@@ -1,8 +1,13 @@
-﻿using Mirai;
+﻿using System;
+using System.Collections.Generic;
+using Mirai;
 using Mirai.Enums;
+using Mirai.Novel.Saver;
 using Mirai.Objects;
 using Mirai.Scenes;
+using Mirai.Styles;
 using SFML.Graphics;
+using SFML.System;
 
 namespace VisualNovell.Scenes
 {
@@ -10,23 +15,20 @@ namespace VisualNovell.Scenes
     {
         public override string Name { get; set; } = "Test";
 
-        public override void Init()
+        public TestScene()
         {
             Background = new BackgroundObject("textures/backgrounds/0");
-            BoxObject = new BoxObject(new Text("", Cache.GetFont("fonts/arial"))
-            {
-                FillColor = Color.Black,
-                CharacterSize = 25
-            });
+        }
         
-            base.Init();
-
+        public override void Init()
+        {
             var miura = new CharacterObject("miura1", "textures/characters/example");
 
             miura.Say("Привет!");
             miura.Show(Direction.Left, Emotion.Normal, CharacterTypeShowing.Fade);
-            
-            miura.Say("Что-ж...", "Впрочем, ты не можешь мне ответить");
+
+            miura.Say("Что-ж...", "Кто ты?");
+            Select("Ответить", "Уйти").OnSelect("Ответить", "Input");
         }
     }
 }

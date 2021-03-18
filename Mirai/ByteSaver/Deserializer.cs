@@ -15,6 +15,7 @@ namespace Mirai.ByteSaver
     {
         private byte[] _bytes;
         private Type _type;
+        private bool _isRoot = true;
         
         public Deserializer(byte[] bytes, Type type)
         {
@@ -29,7 +30,7 @@ namespace Mirai.ByteSaver
 
         public object Deserialize()
         {
-            var packet = Packet.ParsePacket(_bytes);
+            var packet = Packet.ParsePacket(_bytes, _isRoot);
             
             var instance = Activator.CreateInstance(_type);
             var type = instance?.GetType();
@@ -38,7 +39,11 @@ namespace Mirai.ByteSaver
             var props = type.GetProperties();
             for (int i = 0; i < props.Length; i++)
             {
+                if (props[i].GetCustomAttribute<NonSerializedAttribute>() != null) continue;
                 if (packet.Fields.Length - 1 < i) break;
+                if (packet.Fields[i].Value == null) continue;
+                
+                packet.Fields[i].Value = packet.Fields[i].Value.Skip(1).ToArray();
                 SetValue(packet.Fields[i], props[i], instance);
             }
 
@@ -47,17 +52,17 @@ namespace Mirai.ByteSaver
 
         private void SetValue(PacketField value, PropertyInfo prop, object instance)
         {
-            if (prop.PropertyType.IsArray)
+            if (value.Fields != null)
             {
-                var rank = 2;
-                var arr = (GetDynamicObject(prop, value, rank) as object[]).ToArray();
-                var newArray = CreateArray(arr, prop.PropertyType.GetElementType());
+                var rank = 1;
+                var arr = (GetDynamicObject(value, rank) as object[]).ToArray();
+                var newArray = CreateArray(arr, value.Type);
                 
                 prop.SetValue(instance, newArray);
                 return;
             }
 
-            prop.SetValue(instance, GetValue(value.Value, prop));
+            prop.SetValue(instance, GetValue(value.Value, value.Type));
         }
 
         private Array CreateArray(object[] array, Type t)
@@ -77,29 +82,32 @@ namespace Mirai.ByteSaver
             return newArray;
         }
       
-        private object GetDynamicObject(PropertyInfo prop, PacketField field, int maxRank, int rank = 0)
+        private object GetDynamicObject(PacketField field, int maxRank, int rank = 0)
         {
-            if (field.Fields == null || maxRank == rank) return GetValue(field.Value, prop);
+            if (field.Fields == null || maxRank == rank) return GetValue(field.Value, field.Type);
 
             var list = new List<object>();
 
             foreach (var f in field.Fields)
             {
-                list.Add(GetDynamicObject(prop, f, maxRank, rank + 1));
+                list.Add(GetDynamicObject(f, maxRank, rank + 1));
             }
 
             return list.ToArray();
         }
 
-        private object GetValue(byte[] value, PropertyInfo prop)
+        private object GetValue(byte[] value, Type type)
         {
-            if (prop.PropertyType == typeof(string) || prop.PropertyType == typeof(string[])) return Encoding.UTF8.GetString(value);
-            else if (prop.PropertyType.IsValueType)
-                return ByteArrayToFixedObject(value, prop.PropertyType);
-            else if ((prop.PropertyType.IsArray 
-                      && (GetElementType(prop.PropertyType))?.GetCustomAttribute<ByteSerializableAttribute>() != null) || 
-                prop.PropertyType.GetCustomAttribute<ByteSerializableAttribute>() != null)
-                return new Deserializer(value, prop.PropertyType.IsArray ? GetElementType(prop.PropertyType): prop.PropertyType).Deserialize();
+            if (type == typeof(string) || type == typeof(string[])) return Encoding.UTF8.GetString(value);
+            else if (type.IsValueType)
+                return ByteArrayToFixedObject(value, type);
+            else if ((type.IsArray 
+                      && (GetElementType(type))?.GetCustomAttribute<ByteSerializableAttribute>() != null) || 
+                type.GetCustomAttribute<ByteSerializableAttribute>() != null)
+                return new Deserializer(value, type.IsArray ? GetElementType(type) : type)
+                {
+                    _isRoot = false
+                }.Deserialize();
             else throw new PacketException("Unknown type");
         }
 

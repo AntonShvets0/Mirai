@@ -42,12 +42,20 @@ namespace Mirai.Objects
         private Color _defaultColor;
         private Color? _modifiedColor;
         
-        private RectangleShape _shape;
+        public RectangleShape RectangleShape;
 
         public ButtonObject(Text text, Style style)
         {
             Style = style;
             Text = text;
+            
+            RectangleShape = new RectangleShape(CalculateSize(Game.Scene.RenderWindow))
+            {
+                FillColor = _modifiedColor ?? _defaultColor,
+                OutlineColor = Style.GetColor(StyleType.BorderColor) ?? Color.Black,
+                OutlineThickness = Style.GetIntNullable(StyleType.BorderSize) ?? 1,
+                Position = Position
+            };
             
             Animations = new List<Animator>
             {
@@ -67,7 +75,7 @@ namespace Mirai.Objects
         {
             _padding = Style.GetFloatNullable(StyleType.Padding) ?? Text.CharacterSize / 5f;
             _defaultColor = Style.GetColor(StyleType.Color) ?? Color.White;
-            _shape = new RectangleShape(CalculateSize(renderWindow))
+            RectangleShape = new RectangleShape(CalculateSize(renderWindow))
             {
                 FillColor = _modifiedColor ?? _defaultColor,
                 OutlineColor = Style.GetColor(StyleType.BorderColor) ?? Color.Black,
@@ -75,7 +83,7 @@ namespace Mirai.Objects
                 Position = Position
             };
             
-            yield return Handle(_shape);
+            yield return Handle(RectangleShape);
 
             Text.Position = CalculateTextPosition();
             Text.FillColor = Style.GetColor(StyleType.TextColor) ?? Color.Black;

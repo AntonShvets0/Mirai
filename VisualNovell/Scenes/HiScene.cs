@@ -1,5 +1,6 @@
 ﻿using Mirai;
 using Mirai.Abstracts;
+using Mirai.Novel.Saver;
 using Mirai.Objects;
 using Mirai.Styles;
 using SFML.Graphics;
@@ -21,6 +22,16 @@ namespace VisualNovell.Scenes
                         Game.Scene = Find("Test");
                     },
                     Position = new Vector2f(500, 500)
+                });
+            
+            GameObjects.Add(
+                new ButtonObject(new Text("Загрузить сцену", Cache.GetFont("fonts/arial"), 15), new Style())
+                {
+                    LeftClickHandler = () =>
+                    {
+                        GameSaver.Load("test.save");
+                    },
+                    Position = new Vector2f(500, 800)
                 });
         }
     }

@@ -24,13 +24,20 @@ namespace Mirai.Abstracts
                 _scenes.Add(this);
         }
 
+        public virtual void PreInit()
+        {
+        }
+
         public virtual void Init()
+        {
+        }
+
+        public virtual void PostInit()
         {
         }
 
         public virtual void Update()
         {
-            
         }
 
         public void Jump(string name, object args = null)
